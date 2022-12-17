@@ -1,26 +1,35 @@
 import requests
 from datetime import datetime
 
-user_api = "b7be678386df09c6047f7eddcb9ea178"
-location = input("Enter the city name: ")
+# API key to access data from website
+api_key = '55806607ccd495170a39472519dbae18'
+location = input("Enter City name: ")
 
-complete_api_link = "https://api.openweathermap.org/data/2.5/weather?q="+location+"&appid="+user_api
-api_link = requests.get(complete_api_link)
-api_data = api_link.json()
+# HTTP request to send and access data
+weather_data = requests.get(
+    f'https://api.openweathermap.org/data/2.5/weather?q={location}&units=metric&appid={api_key}'
+)
 
-# create variables to store and display data
-temp_city = ((api_data['main']['temp']) - 273.15)
-weather_desc = api_data['weather'][0]['description']
-hmdt = api_data['main']['humidity']
-wind_spd = api_data['wind']['speed']
-date_time = datetime.now().strftime("%d %b %Y | %I:%M:%S %p")
+# Error handling depending on the status code
+if weather_data.json()['cod'] == '404':
+    print("City not found!! Enter a valid city")
+else:
+    # gathering data from the json file and storing it in variables
+    temp_city = weather_data.json()['main']['temp']
+    weather_desc = weather_data.json()['weather'][0]['description']
+    humidity = weather_data.json()['main']['humidity']
+    wind_spd = weather_data.json()['wind']['speed']
+    latitude = weather_data.json()['coord']['lat']
+    longitude = weather_data.json()['coord']['lon']
+    date_time = datetime.now().strftime("%d %b %Y | %I:%M:%S %p")
 
-print("-------------------------------------------------------------")
-print(f"Weather Stats for - {location}  || {date_time}")
-print("-------------------------------------------------------------")
+    # displaying the data
+    print("─────────────────────────────────────────────────────────────")
+    print(f"Weather Stats for - {location} || {date_time}")
+    print(f"Latitude  : {latitude}  \nLongitude : {longitude}")
+    print("─────────────────────────────────────────────────────────────")
 
-print("Current temperature is: {:.2f} deg C".format(temp_city))
-print("Current weather desc  :", weather_desc)
-print("Current Humidity      :", hmdt, '%')
-print("Current wind speed    :", wind_spd, 'kmph')
-
+    print("Temperature          : {:.1f}°C".format(temp_city))
+    print(f"Weather description  : {weather_desc}")
+    print(f"Humidity             : {humidity}%")
+    print(f"Wind speed           : {wind_spd}kmph")
